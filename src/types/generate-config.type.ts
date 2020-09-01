@@ -24,3 +24,9 @@ export const isGeneratableType  = (x: any): x is Type => type.includes(x);
 export const isControllerType  = (x: any): x is ControllerType => controllerType.includes(x);
 export const isModuleType  = (x: any): x is ModuleType => moduleType.includes(x);
 export const isMiddlewareType  = (x: any): x is MiddlewareType => middlewareType.includes(x);
+
+export enum GenerateType{
+    module,
+    middleware,
+    controller
+}
