@@ -15,7 +15,7 @@
     "refresh": "npm run clean:all && npm install",
     "tscov": "tscov --min-coverage 90",
     "tscov:d": "tscov --details",
-    "publish-package": "npm run build && npm publish",
+    "publish-package": "npm version patch && npm run build && npm publish --access public",
     "docs": "typedoc --out docs ./src"
   },
   "bin": {
