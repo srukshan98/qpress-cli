@@ -16,11 +16,14 @@
     "refresh": "npm run clean:all && npm install",
     "tscov": "tscov --min-coverage 90",
     "tscov:d": "tscov --details",
-    "publish-package": "npm version patch && npm run build && cd dist && npm publish --access public",
+    "publish-package": "npm version patch && npm run build && cd dist && npm publish",
     "docs": "typedoc --out docs ./src"
   },
   "bin": {
     "qpress": "./bin/qpress"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "author": "",
   "license": "ISC",
