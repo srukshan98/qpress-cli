@@ -4,6 +4,7 @@ import { red, blue, green } from 'kleur';
 import fs from 'fs';
 import { resolve } from 'path';
 import { ErrorCodeType } from '../types/error-code.type';
+import { templates } from '../config.json';
 
 export class GenerateHandler extends Handler {
 
@@ -142,43 +143,13 @@ export class GenerateHandler extends Handler {
         let tempName: string = '';
         switch (this.generateType) {
             case GenerateType.module:
-                tempName += `
-import { Module } from "@qpress/core";
-
-@Module({
-    controllers: [],
-    imports: [],
-    middlewares: [],
-})
-export class $name {
-}`;
+                tempName += templates.module;
                 break;
             case GenerateType.controller:
-                tempName += `
-import { Route, RequestMapping } from '@qpress/core';
-
-@Route('$route')
-export class $name {
-
-    @RequestMapping()
-    public ListAll(): any {
-        return {
-            Content: '$name is working',
-        };
-    }
-}`;
+                tempName += templates.controller;
                 break;
             case GenerateType.middleware:
-                tempName += `
-import { Attachable, Middleware, QRequest, QResponse, NextFunction } from "@qpress/core";
-
-@Attachable()
-export class $name implements Middleware {
-    middleware(request: QRequest, response: QResponse, next: NextFunction): void {
-        console.log('$name is working');
-        next();
-    }
-}`;
+                tempName += templates.middleware;
         }
         return tempName;
     }

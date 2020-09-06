@@ -2,5 +2,10 @@
     "git": {
         "cloneUrl": "https://github.com/srukshan98/qpress-ts-boilerplate.git",
         "cloneMinimalUrl": "https://github.com/srukshan98/qpress-boilerplate-minimal.git"
+    },
+    "templates": {
+        "module": "import { Module } from '@qpress/core';\r\n\r\n@Module({\r\n\tcontrollers: [\r\n\t],\r\n\timports: [\r\n\t],\r\n\tmiddlewares: [\r\n\t],\r\n})\r\nexport class $name {\r\n}\r\n",
+        "controller": "import { Route, RequestMapping } from '@qpress/core';\r\n\r\n@Route('$route')\r\nexport class $name {\r\n\r\n\t@RequestMapping()\r\n\tpublic ListAll(): any {\r\n\t\treturn {\r\n\t\t\tContent: '$name is working',\r\n\t\t};\r\n\t}\r\n}\r\n",
+        "middleware": "import { Attachable, Middleware, QRequest, QResponse, NextFunction } from '@qpress/core';\r\n\r\n@Attachable()\r\nexport class $name implements Middleware {\r\n\tmiddleware(request: QRequest, response: QResponse, next: NextFunction): void {\r\n\t\tconsole.log('$name is working');\r\n\t\tnext();\r\n\t}\r\n}\r\n"
     }
 }
