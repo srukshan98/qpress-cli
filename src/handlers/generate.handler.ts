@@ -2,7 +2,8 @@ import { GenerateConfigType, isGeneratableType, isModuleType, isControllerType, 
 import { Handler } from './handler';
 import { red, blue, green } from 'kleur';
 import fs from 'fs';
-import { threadId } from 'worker_threads';
+import { resolve } from 'path';
+import { ErrorCodeType } from '../types/error-code.type';
 
 export class GenerateHandler extends Handler {
 
@@ -137,7 +138,7 @@ export class GenerateHandler extends Handler {
         this.generateType = getGenerateType(this.config.type) || GenerateType.module;
     }
 
-    get templatePath(): string {
+    get template(): string {
         let tempName: string = '';
         switch (this.generateType) {
             case GenerateType.module:
@@ -183,14 +184,48 @@ export class $name implements Middleware {
     }
 
     process(): void {
-        let file: string = this.templatePath;
+        let file: string = this.template;
 
         file = file.replace(/\$name/g, this.className);
         file = file.replace(/\$route/g, this.folderName);
         
         const path = this.generateType == GenerateType.module ? (this.folderName + '/' + this.fileName) : this.fileName;
         writeFileSyncRecursive(path, file);
+        this.updateModule(path);
         console.info(green('File Generated Successfully'))
+    }
+    updateModule(path: string) {
+        const assetPath: string = resolve(path);
+
+        let aPath = assetPath;
+        if (this.generateType === GenerateType.module) {
+            const tempPath = assetPath.split('\\');
+            tempPath.pop();
+            aPath = tempPath.join('\\');
+        }
+
+        let modulePath: string = this.findModulePath(aPath);
+
+        let type: "imports" | "controllers" | "middlewares" = this.generateType === GenerateType.module ? 
+            'imports' : this.generateType === GenerateType.controller ?
+                'controllers' : 'middlewares';
+        insertAssetToModule(type, modulePath, assetPath, this.className);
+    }
+    findModulePath(path: string): string {
+        const pathArr: string[] = path.split('\\');
+        pathArr.pop();
+        const assetPath: string = pathArr.join('\\');
+        const fileNames = fs.readdirSync(assetPath)
+        for (const filename of fileNames) {
+            if (filename.match(/\.module\.ts$/)) {
+                return assetPath + '\\' + filename;
+            }
+        }
+        if (assetPath == this.basePath) {
+            console.log(red(`( ${ErrorCodeType.NoModuleError} ) Error: No Parent Module Found`));
+            process.exit(1)
+        }
+        return this.findModulePath(assetPath);
     }
 
 }
@@ -257,4 +292,35 @@ function writeFileSyncRecursive(filename: string, content: string) {
 
     // -- write file
     fs.writeFileSync(root + filepath, content);
+}
+
+function insertAssetToModule(type: 'controllers' | 'middlewares' | 'imports', modulePath: string, assetPath: string, ClassName: string) {
+    const path = require('path');
+    
+    var relModulePath = '.\\' + path.relative('./', modulePath);
+
+    var file = fs.readFileSync(relModulePath, 'utf-8');
+    let moduleObj: string | undefined;
+    
+    const tempModule = /@Module\(({[^]+})\)/g.exec(file);
+    if (tempModule != null) {
+        moduleObj = tempModule[1];
+    }
+    else {
+        console.error(red(`( ${ErrorCodeType.ModuleDecoratorNotFoundError} ) Error: Module Decorator Not Found in ` + relModulePath));
+        process.exit(1);
+    }
+
+    const typeMatch = new RegExp(`${type}[^:]*:[^\\[]*\\[[^\\]]*\\]`, 'g');
+    if (moduleObj.match(typeMatch)) {
+        const assetMatch = new RegExp(`(${type}[^:]*:[^\\[]*\\[)`);
+        file = file.replace(assetMatch, `$1\r\n\t\t${ClassName},`);
+    } else {
+        const assetMatch = new RegExp(/(@Module\({)/g);
+        file = file.replace(assetMatch, `$1\r\n\t${type}: [\r\n\t\t${ClassName},\r\n\t],`);
+    }
+    const mPath = modulePath.split('\\');
+    mPath.pop();
+    file = `import { ${ClassName} } from './${path.relative(mPath.join('\\') + '\\', assetPath).replace('\\', '/').replace('.ts', '')}';\r\n${file}`;
+    fs.writeFileSync(relModulePath, file);
 }
