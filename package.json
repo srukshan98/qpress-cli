@@ -8,14 +8,15 @@
     "test": "npm run lint && npm run test:unit",
     "test:unit": "mocha src/**/*.spec.ts",
     "lint": "tslint -p . --fix",
-    "build": "npm run clean:some && tsc -p .",
+    "build": "npm run clean:some && tsc -p . && npm run bundle",
+    "bundle": "mkdir dist && cp -r lib dist/lib && cp -r bin dist/bin && cp package.json dist/ && cp README.md dist/",
     "global": "npm i -g && qpress --help",
-    "clean:some": "rm -rf ./lib ./docs",
+    "clean:some": "rm -rf ./lib ./docs ./dist",
     "clean:all": "rm -rf ./node_modules ./package-lock.json ./lib ./docs",
     "refresh": "npm run clean:all && npm install",
     "tscov": "tscov --min-coverage 90",
     "tscov:d": "tscov --details",
-    "publish-package": "npm version patch && npm run build && npm publish --access public",
+    "publish-package": "npm version patch && npm run build && cd dist && npm publish --access public",
     "docs": "typedoc --out docs ./src"
   },
   "bin": {
