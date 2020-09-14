@@ -1,4 +1,4 @@
-import { GenerateConfigType, isGeneratableType, isModuleType, isControllerType, isMiddlewareType, GenerateType } from './../types/generate-config.type';
+import { GenerateConfigType, isGeneratableType, isModuleType, isControllerType, isMiddlewareType, GenerateType, isProviderType } from './../types/generate-config.type';
 import { Handler } from './handler';
 import { red, blue, green } from 'kleur';
 import fs from 'fs';
@@ -40,17 +40,20 @@ export class GenerateHandler extends Handler {
 
         name = name.toLowerCase();
         name = name.split('.')[0];
-        if (name.match(/module$/)) {
+        if (name.match(/module$/i)) {
             name = name.substring(0, name.length - 6);
         }
-        if (name.match(/component$/)) {
-            name = name.substring(0, name.length - 6);
+        if (name.match(/controller$/i)) {
+            name = name.substring(0, name.length - 10);
         }
-        if (name.match(/middleware$/)) {
-            name = name.substring(0, name.length - 6);
+        if (name.match(/middleware$/i)) {
+            name = name.substring(0, name.length - 10);
         }
-        
-        if (name[name.length - 1] == '_') name = name.substring(0,name.length - 1);
+        if (name.match(/provider$/i)) {
+            name = name.substring(0, name.length - 10);
+        }
+
+        if (name[name.length - 1] == '_') name = name.substring(0, name.length - 1);
 
         this.fileName = name;
 
@@ -63,6 +66,9 @@ export class GenerateHandler extends Handler {
                 break;
             case GenerateType.middleware:
                 this.fileName += '.middleware.ts';
+                break;
+            case GenerateType.provider:
+                this.fileName += '.provider.ts';
                 break;
         }
 
@@ -83,6 +89,9 @@ export class GenerateHandler extends Handler {
                 break;
             case GenerateType.middleware:
                 this.className += 'Middleware';
+                break;
+            case GenerateType.provider:
+                this.className += 'Provider';
                 break;
         }
     }
@@ -126,13 +135,14 @@ export class GenerateHandler extends Handler {
         this.basePath = baseUri;
     }
 
-    private validateTypes() {
+    validateTypes() {
         if (!isGeneratableType(this.config.type)) {
             console.error(red('Generatable Type entered is Invalid'));
             console.info();
             console.info(blue('Try one of the following commands'));
             console.info(blue(' - To Generate a Module `m` or `module`'));
             console.info(blue(' - To Generate a Controller `c` or `controller`'));
+            console.info(blue(' - To Generate a Provider `p` or `provider`'));
             console.info(blue(' - To Generate a Middleware `middleware`'));
             process.exit(0);
         }
@@ -150,6 +160,9 @@ export class GenerateHandler extends Handler {
                 break;
             case GenerateType.middleware:
                 tempName += templates.middleware;
+                break;
+            case GenerateType.provider:
+                tempName += templates.provider;
         }
         return tempName;
     }
@@ -159,7 +172,7 @@ export class GenerateHandler extends Handler {
 
         file = file.replace(/\$name/g, this.className);
         file = file.replace(/\$route/g, this.folderName);
-        
+
         const path = this.generateType == GenerateType.module ? (this.folderName + '/' + this.fileName) : this.fileName;
         writeFileSyncRecursive(path, file);
         this.updateModule(path);
@@ -177,9 +190,12 @@ export class GenerateHandler extends Handler {
 
         let modulePath: string = this.findModulePath(aPath);
 
-        let type: "imports" | "controllers" | "middlewares" = this.generateType === GenerateType.module ? 
-            'imports' : this.generateType === GenerateType.controller ?
-                'controllers' : 'middlewares';
+        let type: "imports" | "controllers" | "middlewares" | "providers" = 
+            this.generateType === GenerateType.module ? 'imports' : 
+            this.generateType === GenerateType.controller ? 'controllers' : 
+            this.generateType === GenerateType.provider ? 'providers' : 
+            'middlewares';
+        
         insertAssetToModule(type, modulePath, assetPath, this.className);
     }
     findModulePath(path: string): string {
@@ -193,7 +209,8 @@ export class GenerateHandler extends Handler {
             }
         }
         if (assetPath == this.basePath) {
-            console.log(red(`( ${ErrorCodeType.NoModuleError} ) Error: No Parent Module Found`));
+
+            console.error(red(`( ${ErrorCodeType.NoModuleError} ) Error: No Parent Module Found`));
             process.exit(1)
         }
         return this.findModulePath(assetPath);
@@ -229,6 +246,7 @@ function getGenerateType(type: any): GenerateType | null {
     if (isControllerType(type)) return GenerateType.controller;
     if (isMiddlewareType(type)) return GenerateType.middleware;
     if (isModuleType(type)) return GenerateType.module;
+    if (isProviderType(type)) return GenerateType.provider;
     return null;
 }
 
@@ -265,14 +283,14 @@ function writeFileSyncRecursive(filename: string, content: string) {
     fs.writeFileSync(root + filepath, content);
 }
 
-function insertAssetToModule(type: 'controllers' | 'middlewares' | 'imports', modulePath: string, assetPath: string, ClassName: string) {
+function insertAssetToModule(type: 'controllers' | 'middlewares' | 'imports' | 'providers', modulePath: string, assetPath: string, ClassName: string) {
     const path = require('path');
-    
+
     var relModulePath = '.\\' + path.relative('./', modulePath);
 
     var file = fs.readFileSync(relModulePath, 'utf-8');
     let moduleObj: string | undefined;
-    
+
     const tempModule = /@Module\(({[^]+})\)/g.exec(file);
     if (tempModule != null) {
         moduleObj = tempModule[1];
