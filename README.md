@@ -34,6 +34,7 @@ This will generate an asset in the given path.
 The types are as belows,
   - To Generate a Module `m` or `module` ( Modules will be generated inside a folder named after the module automatically )
   - To Generate a Controller `c` or `controller`
+  - To Generate a Provider `p` or `provider`
   - To Generate a Middleware `middleware`
 
 #### Please Make sure the parent app module is importing the generated asset as it is a manual process - Further Enhancement Idea
