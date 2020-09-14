@@ -25,7 +25,25 @@
   "publishConfig": {
     "access": "public"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/srukshan98/qpress-cli.git"
+  },
+  "contributors": [
+    {
+      "name": "amilakanchana0",
+      "email": "amila.kanchana79@gmail.com"
+    }
+  ],
+  "keywords": [
+    "cli",
+    "qpress"
+  ],
+  "author": {
+    "name": "srukshan98",
+    "email": "sachithrukshanmail@gmail.com",
+    "url": "https://github.com/srukshan98"
+  },
   "license": "ISC",
   "dependencies": {
     "@types/fs-extra": "^9.0.1",
