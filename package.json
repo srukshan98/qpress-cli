@@ -1,6 +1,6 @@
 {
   "name": "@qpress/cli",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "This is an extension of @qpress/core. Can be used to easily generate qpress applications and assets inside.",
   "main": "./lib/index.js",
   "scripts": {
