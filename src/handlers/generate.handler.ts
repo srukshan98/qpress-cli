@@ -11,7 +11,6 @@ export class GenerateHandler extends Handler {
     insertPath: string = '';
     fileName: string = '';
     className: string = '';
-    basePath: string = '';
     folderName: string = '';
     generateType: GenerateType = GenerateType.module;
 
@@ -124,16 +123,6 @@ export class GenerateHandler extends Handler {
 
         return path;
     }
-    private updateBasePath(currentPath: string): void {
-        const baseUri: string | null = getBasePath(currentPath);
-
-        if (baseUri === null) {
-            console.error(red('Current Directory path is not inside a QPress Project'));
-            process.exit(0);
-        }
-
-        this.basePath = baseUri;
-    }
 
     validateTypes() {
         if (!isGeneratableType(this.config.type)) {
@@ -216,19 +205,6 @@ export class GenerateHandler extends Handler {
         return this.findModulePath(assetPath);
     }
 
-}
-
-function getBasePath(currentPath: string): string | null {
-    if (fs.existsSync(currentPath + '\\.qpress')) {
-        return currentPath;
-    } else {
-        const pathBlocks: string[] = currentPath.split('\\');
-        pathBlocks.pop();
-        if (pathBlocks.length > 0) {
-            return getBasePath(pathBlocks.join('\\'));
-        }
-        return null;
-    }
 }
 
 function titleCase(str: string) {
