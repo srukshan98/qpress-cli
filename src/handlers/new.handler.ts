@@ -47,12 +47,14 @@ export class newHandler extends Handler {
         delete pkg.description;
         fs.writeFileSync(`${this.args.name}/package.json`,JSON.stringify(pkg, null, "\t"));
         
-        const pkglk = JSON.parse(fs.readFileSync(`${this.args.name}/package-lock.json`, "utf-8"))
-        pkglk.name = pkgname;
-        pkglk.version = '0.0.1';
-        delete pkglk.author;
-        delete pkglk.description;
-        fs.writeFileSync(`${this.args.name}/package-lock.json`,JSON.stringify(pkglk, null, "\t"));
+        try {
+            const pkglk = JSON.parse(fs.readFileSync(`${this.args.name}/package-lock.json`, "utf-8"))
+            pkglk.name = pkgname;
+            pkglk.version = '0.0.1';
+            delete pkglk.author;
+            delete pkglk.description;
+            fs.writeFileSync(`${this.args.name}/package-lock.json`,JSON.stringify(pkglk, null, "\t"));
+        } catch (e) {}
     }
     cloneRepo() {
         try {
