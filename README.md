@@ -36,6 +36,8 @@ The types are as belows,
   - To Generate a Controller `c` or `controller`
   - To Generate a Provider `p` or `provider`
   - To Generate a Middleware `middleware`
+  
+Generated Assets will be Auto-imported into the App Module
 
 ### Run QPress Development Server
 
@@ -56,9 +58,6 @@ qpress build
 ```
 
 This will compile and minify the QPress Server.
-
-
-Generated Assets will be Auto-imported into the App Module
 
 
 <p align="center">
