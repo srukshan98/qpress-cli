@@ -37,4 +37,25 @@ The types are as belows,
   - To Generate a Provider `p` or `provider`
   - To Generate a Middleware `middleware`
 
+### Run QPress Development Server
+
+Open a terminal inside the project folder and un the command below.
+
+```
+qpress serve
+```
+
+This will run the dev server with auto-reload.
+
+### Build QPress Server
+
+Open a terminal inside the project folder and un the command below.
+
+```
+qpress build
+```
+
+This will compile and minify the QPress Server.
+
+
 #### Please Make sure the parent app module is importing the generated asset as it is a manual process - Further Enhancement Idea
